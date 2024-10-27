@@ -1,0 +1,99 @@
+在 **ArkTS** 中，由于框架的声明式UI特性，UI组件的 `build()` 方法内部需要返回标准的 **组件树**。你遇到的错误是因为 `this.tasks.forEach` 直接在UI树中调用不符合语法规则。在 ArkTS 中，我们可以使用 **`ForEach`** 组件来渲染列表数据。
+
+下面是正确使用 **`ForEach`** 组件构建 To-Do List 的代码：
+
+---
+
+## **改进后的代码**
+
+### **index.ets**
+
+```typescript
+@Entry
+@Component
+struct ToDoList {
+  @State tasks: string[] = [];  // 状态：存储任务列表
+  @State newTask: string = '';  // 存储输入框中的新任务
+
+  build() {
+    Column() {
+      // 标题
+      Text('To-Do List')
+        .fontSize(40)
+        .fontWeight(FontWeight.Bold)
+        .margin({ top: 20, bottom: 20 })
+        .textAlign(TextAlign.Center);
+
+      // 输入框：输入新任务
+      TextInput({ placeholder: 'Enter a new task...' })
+        .width('80%')
+        .padding(10)
+        .borderRadius(10)
+        .borderWidth(2)
+        .borderColor('#cccccc')
+        .onChange((value: string) => {
+          this.newTask = value;
+        });
+
+      // 添加任务按钮
+      Button('Add Task')
+        .margin({ top: 10 })
+        .onClick(() => {
+          if (this.newTask.trim() !== '') {
+            this.tasks.push(this.newTask);  // 添加任务到列表
+            this.newTask = '';  // 清空输入框
+          }
+        });
+
+      // 使用 ForEach 渲染任务列表
+      ForEach(this.tasks, (task, index) => {
+        Row() {
+          // 显示任务内容
+          Text(task)
+            .fontSize(20)
+            .width('80%')
+            .textAlign(TextAlign.Left);
+
+          // 删除按钮
+          Button('Delete')
+            .backgroundColor('#FF6B6B')
+            .onClick(() => {
+              this.tasks.splice(index, 1);  // 删除任务
+            });
+        }
+        .padding(10)
+        .backgroundColor('#f0f0f0')
+        .borderRadius(8);
+      }).margin({ top: 20 });
+    }
+    .padding(20)
+    .height('100%')
+    .width('100%');
+  }
+}
+```
+
+---
+
+## **改进说明**
+1. **使用 `ForEach` 组件**：
+   - `ForEach` 是 ArkTS 提供的组件，用于迭代并渲染数组中的元素。
+   - 遍历过程中会为每个元素生成对应的 UI 组件。
+
+2. **状态管理**：
+   - `@State` 修饰符用于管理动态数据，并在数据变化时自动更新UI。
+
+3. **性能优化**：
+   - 每个任务项通过 `ForEach` 渲染，这符合 ArkTS 的 **声明式UI编程范式**，确保性能和语法的正确性。
+
+---
+
+## **运行效果**
+1. 启动后，显示 **To-Do List** 标题及输入框。
+2. 输入任务后，点击 **Add Task** 按钮，任务会出现在列表中。
+3. 点击 **Delete** 按钮删除任务，并实时更新界面。
+
+---
+
+## **总结**
+通过使用 `ForEach` 组件，你的 To-Do List 现在符合 ArkTS 的组件语法，且更易于维护。这个示例展示了如何使用 **动态列表** 渲染和 **状态管理** 创建交互式应用。
